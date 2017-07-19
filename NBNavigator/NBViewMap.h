@@ -11,6 +11,7 @@
 
 #define APPURL_HOST_VIEW                                                @"view"
 #define APPURL_HOST_SERVICE                                             @"service"
+#define APPURL_LOCAL_H5_PATH                                            @"www"
 
 // 参数，是否回溯
 #define APPURL_PARAM_RETROSPECT                                         @"_retrospect"
@@ -35,16 +36,13 @@
 #define APPURL_SERVICE_IDENTIFIER_VIEWEXIT                              @"viewExit"
 // 退到root页面
 #define APPURL_SERVICE_IDENTIFIER_POPTOROOT                             @"popToRoot"
-// webview
-#define APPURL_VIEW_IDENTIFIER_WEBVIEW                                  @"webview"
 
 #pragma mark - --------------------- VIEW ------------------------
-
-// Tab
-#define APPURL_VIEW_IDENTIFIER_TAB                                      @"maintab"
 // 首页
 #define APPURL_VIEW_IDENTIFIER_INDEX                                    @"index"
 // 登录
 #define APPURL_VIEW_IDENTIFIER_LOGIN                                    @"login"
+// webview
+#define APPURL_VIEW_IDENTIFIER_WEBVIEW                                  @"webview"
 
 #endif /* NBViewMap_h */

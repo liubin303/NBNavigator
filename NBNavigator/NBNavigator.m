@@ -14,6 +14,8 @@
 #import "NBViewMap.h"
 #import "NBViewDataModel.h"
 
+@protocol NBNavigatorDelegate;
+
 //解决performSelector的一个warning
 #define SuppressPerformSelectorLeakWarning(Stuff) \
 do { \
@@ -79,8 +81,8 @@ BOOL openURL(NSString * url){
         // 在viewmap中注册过
         if (viewDataModel) {
             // 画面权限判断
-            if ([self.delegate respondsToSelector:@selector(navigatorAuthForViewModel:)]) {
-                BOOL result = [self.delegate navigatorAuthForViewModel:viewDataModel];
+            if (viewDataModel.role == ViewRoleLogin && [self.delegate respondsToSelector:@selector(navigatorWillGotoNeedLoginViewWithURL:)]) {
+                BOOL result = [self.delegate navigatorWillGotoNeedLoginViewWithURL:url];
                 if (!result) {
                     NSLog(@"%@ 需要登录", viewIdentifier);
                     return YES;
@@ -309,27 +311,34 @@ BOOL openURL(NSString * url){
         }
         
     } else {
-        
-        NSString *fielUrlString = [NBURLMap fileUrlWithFilePath:viewDataModel.filePath];
-        if (viewDataModel.type == ViewTypeOnlineH5) {
-            fielUrlString = viewDataModel.webUrl;
+        NSString *urlString = nil;
+        switch (viewDataModel.type) {
+            case ViewTypeOnlineH5:
+                urlString = viewDataModel.webUrl;
+                break;
+            case ViewTypeLocalH5:
+                urlString = [NBURLMap fileUrlWithFilePath:viewDataModel.filePath];
+                break;
+            default:
+                break;
         }
-        
-        NSMutableDictionary *query = [NSMutableDictionary dictionary];
-        [query setValue:fielUrlString forKey:@"_url"];
-        [query setValue:viewDataModel.desc forKey:@"_desc"];
-        [query setValue:viewDataModel.identifier forKey:APPURL_PARAM_IDENTIFIER];
-        
-        if ([self.delegate respondsToSelector:@selector(navigatorWebViewControllerForURL:)]) {
-            UIViewController *webVC = [self.delegate navigatorWebViewControllerForURL:fielUrlString];
-            return webVC;
+        // 找到webview
+        viewDataModel = [self viewDataModelForIdentifier:APPURL_VIEW_IDENTIFIER_WEBVIEW];
+        if (viewDataModel) {
+            NSObject *object = [viewDataModel.class alloc];
+            SEL initMethod = [viewDataModel.viewInitMethod pointerValue];
+            if ([object conformsToProtocol:@protocol(NBNavigatorDelegate)] && [object respondsToSelector:@selector(initMethod)]) {
+                NSMutableDictionary *query = [NSMutableDictionary dictionary];
+                [query setValue:urlString forKey:APPURL_PARAM_URL];
+                [query setValue:viewDataModel.desc forKey:APPURL_PARAM_DESC];
+                [query setValue:viewDataModel.identifier forKey:APPURL_PARAM_IDENTIFIER];
+                [object performSelector:initMethod withObject:query];
+                if (object && [object isKindOfClass:[UIViewController class]]) {
+                    return (UIViewController *)object;
+                }
+            }
         }
     }
-    
-    if ([self.delegate respondsToSelector:@selector(navigatorAuthForViewModel:)]) {
-        [self.delegate navigatorAuthForViewModel:viewDataModel];
-    }
-    
     return nil;
 }
 

@@ -259,8 +259,8 @@
 {
     NSArray * stack             = nil;
     
-    if (self.rootViewController && [self.rootViewController isKindOfClass:[UINavigationController class]]) {
-        stack                   = [(UINavigationController *)self.rootViewController viewControllers];
+    if (self.currentNavigationController && [self.currentNavigationController isKindOfClass:[UINavigationController class]]) {
+        stack                   = [(UINavigationController *)self.currentNavigationController viewControllers];
     }
     
     return stack;
@@ -379,17 +379,17 @@
 
 #pragma mark - basic navigation
 - (void)popToViewController:(UIViewController *)controller animated:(BOOL)animated{
-    if (self.rootViewController && [self.rootViewController isKindOfClass:[UINavigationController class]]) {
-        if (controller && [controller isKindOfClass:[UIViewController class]] && [[(UINavigationController *)self.rootViewController viewControllers] containsObject:controller]) {
-            [(UINavigationController *)self.rootViewController popToViewController:controller animated:animated];
+    if (self.currentNavigationController && [self.currentNavigationController isKindOfClass:[UINavigationController class]]) {
+        if (controller && [controller isKindOfClass:[UIViewController class]] && [[self.currentNavigationController viewControllers] containsObject:controller]) {
+            [self.currentNavigationController popToViewController:controller animated:animated];
         }
     }
 }
 
 - (void)pushViewController:(UIViewController *)controller animated:(BOOL)animated{
-    if (self.rootViewController && [self.rootViewController isKindOfClass:[UINavigationController class]]) {
+    if (self.currentNavigationController && [self.currentNavigationController isKindOfClass:[UINavigationController class]]) {
         if (controller && [controller isKindOfClass:[UIViewController class]]) {
-            [(UINavigationController *)self.rootViewController pushViewController:controller animated:animated];
+            [self.currentNavigationController pushViewController:controller animated:animated];
         }
     }
 }
@@ -456,12 +456,6 @@
     return _window;
 }
 
-
-- (void)setupRootViewController:(UIViewController *)rootViewController{
-    self.rootViewController         = rootViewController;
-//    self.window.rootViewController  = self.rootViewController;
-}
-
 - (NBViewDataModel *)viewDataModelForIdentifier:(NSString *)identifier{
     NBViewDataModel * viewDataModel         = nil;
     
@@ -477,9 +471,9 @@
 - (UIViewController *)topViewController{
     UIViewController * controller   = nil;
     
-    if (self.rootViewController && [self.rootViewController isKindOfClass:[UINavigationController class]]) {
+    if (self.currentNavigationController && [self.currentNavigationController isKindOfClass:[UINavigationController class]]) {
         //非arc下面，获取到此对象后需要将对象hold住，否则扔出去的肯能是个野指针
-        controller  = [(UINavigationController *)self.rootViewController topViewController];
+        controller  = [(UINavigationController *)self.currentNavigationController topViewController];
     }
     
     return controller;
@@ -488,8 +482,8 @@
 - (UIViewController *)visibleViewController{
     UIViewController * controller   = nil;
     
-    if (self.rootViewController && [self.rootViewController isKindOfClass:[UINavigationController class]]) {
-        controller = [(UINavigationController *)self.rootViewController visibleViewController];
+    if (self.currentNavigationController && [self.currentNavigationController isKindOfClass:[UINavigationController class]]) {
+        controller = [(UINavigationController *)self.currentNavigationController visibleViewController];
     }
     
     return controller;
@@ -516,7 +510,7 @@
 @implementation NBBaseNavigator (UIViewController)
 
 - (void)viewExit:(NSDictionary *)query{
-    if ([self.rootViewController isKindOfClass:[UINavigationController class]]) {
+    if ([self.currentNavigationController isKindOfClass:[UINavigationController class]]) {
         BOOL animated = YES;
         if (query) {
             NSString * animatedString   = [query objectForKey:APPURL_PARAM_ANIMATED];
@@ -524,12 +518,12 @@
                 animated                = [animatedString boolValue];
             }
         }
-        [(UINavigationController *)self.rootViewController popViewControllerAnimated:animated];
+        [(UINavigationController *)self.currentNavigationController popViewControllerAnimated:animated];
     }
 }
 
 - (void)popToRoot:(NSDictionary *)query{
-    if ([self.rootViewController isKindOfClass:[UINavigationController class]]) {
+    if ([self.currentNavigationController isKindOfClass:[UINavigationController class]]) {
         BOOL animated = YES;
         if (query) {
             NSString * animatedString   = [query objectForKey:APPURL_PARAM_ANIMATED];
@@ -537,7 +531,7 @@
                 animated                = [animatedString boolValue];
             }
         }
-        [(UINavigationController *)self.rootViewController popToRootViewControllerAnimated:animated];
+        [(UINavigationController *)self.currentNavigationController popToRootViewControllerAnimated:animated];
     }
 }
 

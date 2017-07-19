@@ -11,15 +11,12 @@
 
 @protocol NBNavigatorDelegate <NSObject>
 
-// 本地H5路径
-- (NSString *)navigatorPathOfLocalH5;
-// 跳转到tabbar
+@optional
+// 切换tabbar
 - (void)navigatorWillChangeTabbarToIndex:(NSInteger)index;
 @required
-// 打开web时需要的vc
-- (UIViewController *)navigatorWebViewControllerForURL:(NSString *)urlString;
 // 权限验证
-- (BOOL)navigatorAuthForViewModel:(NBViewDataModel *)viewModel;
+- (BOOL)navigatorWillGotoNeedLoginViewWithURL:(NSString *)url;
 
 @end
 
@@ -46,7 +43,13 @@
  @property
  @abstract      window的根viewcontroller
  */
-@property (nonatomic, strong) __kindof UIViewController  *rootViewController;
+@property (nonatomic, strong) UIViewController  *rootViewController;
+/*!
+ @property
+ @abstract      window的根viewcontroller
+ */
+@property (nonatomic, strong) __kindof UINavigationController *currentNavigationController;
+
 /*!
  @property
  @abstract      导航堆栈中最上面的viewcontroller
@@ -77,12 +80,6 @@
 @property (nonatomic, weak) id<NBNavigatorDelegate> delegate;
 
 + (instancetype)sharedInstance;
-
-/*!
- @method
- @abstract      设置rootviewcontroller
- */
-- (void)setupRootViewController:(UIViewController *)rootViewController;
 
 /*!
  @method

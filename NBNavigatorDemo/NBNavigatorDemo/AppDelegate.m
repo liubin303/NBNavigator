@@ -30,30 +30,22 @@
         return;
     }
     self.tabbarController.selectedIndex = index;
-    [[NBNavigator sharedInstance] setupRootViewController:self.tabbarController.viewControllers[self.tabbarController.selectedIndex]];
+    [NBNavigator sharedInstance].currentNavigationController = self.tabbarController.viewControllers[self.tabbarController.selectedIndex];
 }
 
-- (UIViewController *)navigatorWebViewControllerForURL:(NSString *)urlString{
-    WebViewController *webvc = [[WebViewController alloc] init];
-    return webvc;
-}
-
-- (NSString *)navigatorPathOfLocalH5{
-    return @"www";
-}
-
-- (BOOL)navigatorAuthForViewModel:(NBViewDataModel *)viewModel{
-    if (viewModel.role == ViewRoleLogin) {
+- (BOOL)navigatorWillGotoNeedLoginViewWithURL:(NSString *)url{
+    BOOL isLogin = NO;
+    if (!isLogin) {
         [[NBNavigator sharedInstance] openViewWithIdentifier:APPURL_VIEW_IDENTIFIER_LOGIN queryForInit:nil propertyDictionary:nil];
-        return NO;
     }
-    return YES;
+    return isLogin;
 }
+
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
     //优先初始化sdk，将资源加载
-    [NBNavigator sharedInstance].delegate = self;
+    
     self.window = [[NBNavigator sharedInstance] window];
     self.window.autoresizesSubviews = YES;
     
@@ -97,7 +89,9 @@
     
     self.tabbarController = tb;
     self.tabbarController.delegate = self;
-    [[NBNavigator sharedInstance] setupRootViewController:self.tabbarController.viewControllers[self.tabbarController.selectedIndex]];
+    [NBNavigator sharedInstance].delegate = self;
+    [NBNavigator sharedInstance].rootViewController = self.tabbarController;
+    [NBNavigator sharedInstance].currentNavigationController = navc1;
     //设置工程的scheme identifier
     [NBURLHelper setSchemeIdentifier:@"com.nb.navigator"];
 
@@ -108,7 +102,7 @@
 
 
 - (void)tabBarController:(UITabBarController *)tabBarController didSelectViewController:(UIViewController *)viewController{
-    [[NBNavigator sharedInstance] setupRootViewController:viewController];
+    [NBNavigator sharedInstance].currentNavigationController = self.tabbarController.viewControllers[self.tabbarController.selectedIndex];
 }
 
 

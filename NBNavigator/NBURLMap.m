@@ -204,7 +204,7 @@
     [directoryParts removeLastObject];
     // 拼接文件路径
     NSString* directoryPartsJoined = [directoryParts componentsJoinedByString:@"/"];
-    NSString *localH5Path = [[NBNavigator sharedInstance].delegate navigatorPathOfLocalH5];
+    NSString *localH5Path = APPURL_LOCAL_H5_PATH;
     if (directoryPartsJoined.length > 0) {
         localH5Path = [NSString stringWithFormat:@"%@/%@", localH5Path, directoryPartsJoined];
     }
